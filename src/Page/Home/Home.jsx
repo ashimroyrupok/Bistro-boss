@@ -22,7 +22,6 @@ const Home = () => {
             <PopularRecipe></PopularRecipe>
             <Featured></Featured>
             <Testimonials></Testimonials>
-            <Reviews></Reviews>
 
         </div>
     );
