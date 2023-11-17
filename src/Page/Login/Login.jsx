@@ -1,14 +1,21 @@
 import { useContext, useEffect, useRef, useState } from 'react';
 import { loadCaptchaEnginge, LoadCanvasTemplate, LoadCanvasTemplateNoReload, validateCaptcha } from 'react-simple-captcha';
 import { AuthContext } from '../../Provider/AuthProvider';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import SocialLogin from '../../components/SocialLogin/SocialLogin';
 
 const Login = () => {
     const navigate = useNavigate()
-    const {login} =useContext(AuthContext)
-   const captchaRef = useRef()
-   const [disabled ,setDisabled ] =useState(true)
+    const { login } = useContext(AuthContext)
+    const captchaRef = useRef()
+    const [disabled, setDisabled] = useState(true)
+    const location = useLocation()
+
+
+    const from = location.state?.from?.pathname || "/";
+
+
     useEffect(() => {
         loadCaptchaEnginge(6);
     }, [])
@@ -19,24 +26,24 @@ const Login = () => {
         const email = form.email.value;
         const password = form.password.value;
         // console.log(email, password);
-        login(email,password)
-        .then(res=> {
-            console.log(res.user);
-            Swal.fire("Login successful!");
-            navigate('/')
-        })
-        .catch(err => {
-            console.log(err.message);
-        })
+        login(email, password)
+            .then(res => {
+                console.log(res.user);
+                Swal.fire("Login successful!");
+                navigate(from, { replace: true });
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
 
     }
-    const handleValidation = ()=> {
+    const handleValidation = () => {
         const user_captcha_value = captchaRef.current.value
 
-        if (validateCaptcha(user_captcha_value)==true) {
+        if (validateCaptcha(user_captcha_value) == true) {
             setDisabled(false)
         }
-   
+
         else {
             alert('Captcha Does Not Match');
             setDisabled(true)
@@ -69,7 +76,7 @@ const Login = () => {
                         </div>
 
                         <div className="form-control">
-                             <LoadCanvasTemplate />
+                            <LoadCanvasTemplate />
                             <input ref={captchaRef} name="captcha" type="text" placeholder="type the captcha" className="input input-bordered my-2" required />
                             <button onClick={handleValidation} className="btn btn-xs">Validate</button>
                         </div>
@@ -78,6 +85,8 @@ const Login = () => {
                         </div>
                     </form>
                     <p className='text-center pb-7'> <small>New in Bistro Boss?</small> <Link className='text-[#D1A054]' to='/signup'>Create an account</Link> </p>
+
+                    <SocialLogin></SocialLogin>
                 </div>
             </div>
         </div>

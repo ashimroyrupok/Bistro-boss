@@ -1,10 +1,13 @@
 import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import { AuthContext } from "../../Provider/AuthProvider";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import usepublicAxios from "../../hooks/usepublicAxios";
 
 const Signup = () => {
-    const {createUser} = useContext(AuthContext)
+    const { createUser, userInfo } = useContext(AuthContext)
+    const navigate = useNavigate()
+    const axiosPublic = usepublicAxios()
 
     const {
         register,
@@ -15,13 +18,37 @@ const Signup = () => {
 
     const onSubmit = data => {
         console.log(data);
-        createUser(data.email,data.password)
-        .then(res => {
-            console.log(res.user);
-        })
-        .catch(err => {
-            console.log(err.message);
-        })
+        createUser(data.email, data.password)
+            .then(res => {
+                console.log(res.user);
+                userInfo(data.name, data.photourl)
+                    .then(res => {
+                        console.log(res);
+
+                        const userData = {
+                            name: data.name,
+                            email: data.email,
+                            password: data.password
+                        }
+                        console.log(userData);
+
+                        // users api
+                        axiosPublic.post('/users', userData)
+                            .then(res => {
+                                console.log(res.data);
+                                if (res.data.insertedId) {
+                                    navigate('/login')
+                                }
+                            })
+                    })
+                    .catch(err => {
+                        console.log(err.message);
+                    })
+
+            })
+            .catch(err => {
+                console.log(err.message);
+            })
     }
 
     return (
@@ -38,6 +65,13 @@ const Signup = () => {
                                 <span className="label-text">Name</span>
                             </label>
                             <input name="name" {...register("name", { required: true })} type="text" placeholder="name" className="input input-bordered" />
+                            {errors.name && <span className="text-red-500">This field is required</span>}
+                        </div>
+                        <div className="form-control">
+                            <label className="label">
+                                <span className="label-text">Photo url</span>
+                            </label>
+                            <input name="photourl" {...register("photourl", { required: true })} type="text" placeholder="photourl" className="input input-bordered" />
                             {errors.name && <span className="text-red-500">This field is required</span>}
                         </div>
                         <div className="form-control">

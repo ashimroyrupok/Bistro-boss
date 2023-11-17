@@ -1,9 +1,15 @@
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../../Provider/AuthProvider";
+import useCart from "../../hooks/useCart";
+// import { FaBeer } from 'react-icons/fa';
 
 const Navbar = () => {
     const { user, logout } = useContext(AuthContext)
+
+    const [cart] = useCart()
+    console.log(cart);
+
 
 
     const handlelogout = () => {
@@ -15,14 +21,25 @@ const Navbar = () => {
                 console.log(err);
             })
     }
+    console.log(user);
+    console.log(user?.displayName);
 
     const nav = <>
         <li><Link to='/'>Home</Link></li>
         <li><Link to='/ourPage'>Our Page</Link></li>
         <li><Link to='/order/salad'>Order Food</Link></li>
+        <li><Link to='/secret'>Secret</Link></li>
+        <li>
+            <Link to='/dashboard/mycart'>
+                <button className="">
+                    Shopping Cart
+                    <div className="badge badge-secondary ml-1"> {cart.length}  </div>
+                </button>
+            </Link>
+        </li>
 
         {
-            user ? <> <button onClick={handlelogout} className="btn btn-primary">LogOut</button> </> : <> <li><Link to='/login'>Login</Link></li> </>
+            user ? <> <button onClick={handlelogout} className="btn btn-outline">LogOut</button> </> : <> <li><Link to='/login'>Login</Link></li> </>
         }
 
 
@@ -49,7 +66,11 @@ const Navbar = () => {
                 </ul>
             </div>
             <div className="navbar-end">
-                <a className="btn">Button</a>
+                <p> {user?.displayName} </p>
+                <div className="w-10 rounded-full">
+                    <img src={user?.photoURL} alt="" />
+
+                </div>
             </div>
         </div>
     );
