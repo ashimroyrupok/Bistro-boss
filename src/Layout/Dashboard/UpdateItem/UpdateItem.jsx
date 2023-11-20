@@ -1,18 +1,22 @@
-import { useForm } from "react-hook-form";
+import { useLoaderData, useParams } from "react-router-dom";
 import SectionTitle from "../../../components/SectionTitle/SectionTitle";
+import { useForm } from "react-hook-form";
 import { FaUtensils } from "react-icons/fa6";
 import usepublicAxios from "../../../hooks/usepublicAxios";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 
+
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`
 
-const AddItems = () => {
-
+const UpdateItem = () => {
+    
+    const item = useLoaderData()
+    console.log(item);
     const axiosPublic = usepublicAxios()
     const axiosSecure = useAxiosSecure()
-    const { register, handleSubmit,reset } = useForm()
+    const { register, handleSubmit, reset } = useForm()
     const onSubmit = async (data) => {
         // console.log(data)
         const imageFile = { image: data.image[0] }
@@ -21,6 +25,7 @@ const AddItems = () => {
                 'content-type': "multipart/form-data"
             }
         })
+        console.log(res.data);
 
         if (res.data.success) {
             const menuInfo = {
@@ -31,21 +36,22 @@ const AddItems = () => {
                 price: parseFloat(data.price)
             }
 
-            const resMenu = await axiosSecure.post('/menu', menuInfo)
-            if (resMenu.data.insertedId) {
+            const resMenu = await axiosSecure.patch(`/menu/${item?._id}`, menuInfo)
+            console.log(resMenu.data);
+            if (resMenu.data.modifiedCount > 0) {
                 // 
                 // console.log(resMenu.data);
                 Swal.fire({
                     position: "top-end",
                     icon: "success",
-                    title: "Product added successful",
+                    title: `${item?.name} updated successful`,
                     showConfirmButton: false,
                     timer: 1500
                 });
                 reset()
             }
 
-            // console.log(menuInfo);
+            console.log(menuInfo);
 
         }
 
@@ -53,11 +59,11 @@ const AddItems = () => {
     }
 
 
+    console.log(item);
     return (
         <div>
-            <div className="mb-9">
-                <SectionTitle subHeading="---What's new?---" heading="ADD AN ITEM"></SectionTitle>
-            </div>
+            <SectionTitle heading={"UPDATE ITEM"}></SectionTitle>
+
             <form onSubmit={handleSubmit(onSubmit)}>
                 {/* <input {...register("name")} /> */}
 
@@ -65,7 +71,7 @@ const AddItems = () => {
                     <label className="label">
                         <span className="label-text"> Recipe name* </span>
                     </label>
-                    <input {...register('name')} type="text" placeholder="recipe name" className="input input-bordered w-full " />
+                    <input defaultValue={item?.name} {...register('name')} type="text" placeholder="recipe name" className="input input-bordered w-full " />
 
 
                     <div className="flex gap-6">
@@ -74,7 +80,7 @@ const AddItems = () => {
                             <label className="label">
                                 <span className="label-text"> Recipe name* </span>
                             </label>
-                            <select {...register('category')} className="select select-bordered w-full">
+                            <select value={item?.category} {...register('category')} className="select select-bordered w-full">
                                 <option disabled selected>Select Category</option>
                                 <option value="salad">Salad</option>
                                 <option value='pizza'>Pizza</option>
@@ -88,7 +94,7 @@ const AddItems = () => {
                             <label className="label">
                                 <span className="label-text"> Price </span>
                             </label>
-                            <input {...register('price')} type="number" placeholder="price" className="input input-bordered w-full " />
+                            <input defaultValue={item?.price} {...register('price')} type="number" placeholder="price" className="input input-bordered w-full " />
                         </div>
                     </div>
 
@@ -97,10 +103,10 @@ const AddItems = () => {
                             <label className="label">
                                 <span className="label-text">Recipe Description</span>
                             </label>
-                            <textarea {...register('recipe')} className="textarea textarea-bordered h-24" placeholder="Bio"></textarea>
+                            <textarea value={item?.recipe} {...register('recipe')} className="textarea textarea-bordered h-24" placeholder="Bio"></textarea>
                         </div>
                     </div>
-                    <input {...register('image')} type="file" className="file-input w-full my-4 max-w-xs" />
+                    <input defaultValue={item?.value} {...register('image')} type="file" className="file-input w-full my-4 max-w-xs" />
 
                 </div>
 
@@ -113,4 +119,4 @@ const AddItems = () => {
     );
 };
 
-export default AddItems;
+export default UpdateItem;
