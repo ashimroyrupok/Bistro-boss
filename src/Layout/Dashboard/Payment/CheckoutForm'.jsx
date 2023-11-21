@@ -3,15 +3,16 @@ import { useEffect, useState } from "react";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useCart from "../../../hooks/useCart";
 import useAuth from "../../../hooks/useAuth";
+import Swal from "sweetalert2";
 
 const CheckoutForm = () => {
     const stripe = useStripe()
     const [error, setError] = useState('')
-    const [transectionId, setTransectionId] =useState('')
+    const [transectionId, setTransectionId] = useState('')
     const { user } = useAuth()
     const elements = useElements()
     const axiosSecure = useAxiosSecure()
-    const [cart] = useCart()
+    const [cart, refetch] = useCart()
     const [clientSecret, setClientSecret] = useState('')
 
     const totalPrice = cart?.reduce((total, item) => total + item.price, 0)
@@ -74,9 +75,33 @@ const CheckoutForm = () => {
             if (paymentIntent.status === "succeeded") {
 
                 setTransectionId(paymentIntent?.id)
-                // 
+                // now save the payment in the database
+                const payment = {
+                    email: user.email,
+                    price: totalPrice,
+                    transectionId: paymentIntent.id,
+                    date: new Date(),
+                    cartId: cart.map(item => item._id),
+                    status: "pending"
+                }
 
-             }
+                const res = await axiosSecure.post('/payments', payment);
+                console.log(res.data, "payment saved");
+                if (res.data?.paymentResult?.insertedId) {
+                    refetch()
+                    Swal.fire({
+                        position: "top-end",
+                        icon: "success",
+                        title: "Your taka poysa complete",
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+
+                }
+
+
+
+            }
 
 
         }
@@ -84,36 +109,36 @@ const CheckoutForm = () => {
     }
 
 
-        return (
-            <div>
-                <form onSubmit={handleSubmit}>
-                    <CardElement
-                        options={{
-                            style: {
-                                base: {
-                                    fontSize: '16px',
-                                    color: '#424770',
-                                    '::placeholder': {
-                                        color: '#aab7c4',
-                                    },
-                                },
-                                invalid: {
-                                    color: '#9e2146',
+    return (
+        <div>
+            <form onSubmit={handleSubmit}>
+                <CardElement
+                    options={{
+                        style: {
+                            base: {
+                                fontSize: '16px',
+                                color: '#424770',
+                                '::placeholder': {
+                                    color: '#aab7c4',
                                 },
                             },
-                        }}
-                    />
-                    <button className="btn btn-primary btn-sm my-5" type="submit" disabled={!stripe || !clientSecret}>
-                        Pay
-                    </button>
-                </form>
+                            invalid: {
+                                color: '#9e2146',
+                            },
+                        },
+                    }}
+                />
+                <button className="btn btn-primary btn-sm my-5" type="submit" disabled={!stripe || !clientSecret}>
+                    Pay
+                </button>
+            </form>
 
-                <p className="text-red-600"> {error} </p>
-                <p className="text-green-600"> Your Transaction id is: {transectionId} </p>
+            <p className="text-red-600"> {error} </p>
+            <p className="text-green-600"> Your Transaction id is: {transectionId} </p>
 
-            </div>
-        );
-    };
+        </div>
+    );
+};
 
 
 export default CheckoutForm;

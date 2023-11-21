@@ -1,13 +1,13 @@
 import axios from "axios";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useAuth from "./useAuth";
 
 const axiosSecure = axios.create({
     baseURL: "http://localhost:5000"
 })
 const useAxiosSecure = () => {
-    // const navigate = useNavigate()
-    // const { logout } = useAuth()
+    const navigate = useNavigate()
+    const { logout } = useAuth()
     // request interceptor to add authorization header can every secure for every call
     axiosSecure.interceptors.request.use(function (config) {
         const token = localStorage.getItem('access-token')
@@ -30,10 +30,10 @@ const useAxiosSecure = () => {
         if (status === 401 || status === 403) {
 
 
-            // await logout()
+            await logout()
             //     .then(() => {
 
-            //         navigate('/login')
+                    navigate('/login')
 
             //     })
 
