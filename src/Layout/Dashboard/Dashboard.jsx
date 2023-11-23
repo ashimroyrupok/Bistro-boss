@@ -20,7 +20,7 @@ const Dashboard = () => {
                          <>
 
                             <li className=" ">
-                                <NavLink to='/dashboard/home'> <FaHouse></FaHouse>
+                                <NavLink to='/dashboard/adminHome'> <FaHouse></FaHouse>
                                     <span>Admin Home</span>
                                 </NavLink>
                             </li>

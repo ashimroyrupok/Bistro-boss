@@ -11,16 +11,16 @@ const FoodCard = ({ item }) => {
     const location = useLocation()
     const axiosSecure = useAxiosSecure()
     const [,refetch] = useCart()
-    const handleCart = (item) => {
+    const handleCart = (itemInfo) => {
         // console.log(item);
         if (user && user?.email) {
             // console.log(item, user?.email);
             const cartItem ={
-                menuId : _id,
+                menuId : itemInfo._id,
                 email: user?.email,
-                name,
-                image,
-                price
+                name:itemInfo?.name,
+                image:itemInfo?.image,
+                price: itemInfo?.price
             }
 
             axiosSecure.post("/carts" ,cartItem)

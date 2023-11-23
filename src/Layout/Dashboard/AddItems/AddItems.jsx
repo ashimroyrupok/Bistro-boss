@@ -6,6 +6,7 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
+console.log(image_hosting_key);
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`
 
 const AddItems = () => {
@@ -14,8 +15,9 @@ const AddItems = () => {
     const axiosSecure = useAxiosSecure()
     const { register, handleSubmit,reset } = useForm()
     const onSubmit = async (data) => {
-        // console.log(data)
+        console.log(data.image)
         const imageFile = { image: data.image[0] }
+        console.log(imageFile);
         const res = await axiosPublic.post(image_hosting_api, imageFile, {
             headers: {
                 'content-type': "multipart/form-data"

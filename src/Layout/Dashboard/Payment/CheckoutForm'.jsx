@@ -13,6 +13,7 @@ const CheckoutForm = () => {
     const elements = useElements()
     const axiosSecure = useAxiosSecure()
     const [cart, refetch] = useCart()
+    console.log(cart);
     const [clientSecret, setClientSecret] = useState('')
 
     const totalPrice = cart?.reduce((total, item) => total + item.price, 0)
@@ -81,7 +82,7 @@ const CheckoutForm = () => {
                     price: totalPrice,
                     transectionId: paymentIntent.id,
                     date: new Date(),
-                    cartId: cart.map(item => item._id),
+                    cartId: cart.map(item => item.menuId),
                     status: "pending"
                 }
 
